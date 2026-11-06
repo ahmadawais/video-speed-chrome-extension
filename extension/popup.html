@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Video Speed</title>
+    <link rel="stylesheet" href="ui.css" />
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <header>
+      <img src="icons/icon32.png" alt="" width="18" height="18" />
+      <h1>Video Speed</h1>
+      <button id="options" class="icon-btn" title="Settings" aria-label="Settings">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" /><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z" /></svg>
+      </button>
+    </header>
+
+    <main>
+      <section id="player" hidden>
+        <div class="dial">
+          <button id="slower" class="round" aria-label="Slower">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /></svg>
+          </button>
+          <output id="speed" aria-live="polite">1.00×</output>
+          <button id="faster" class="round" aria-label="Faster">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
+          </button>
+        </div>
+        <div id="presets" class="presets" role="group" aria-label="Speed presets"></div>
+        <div class="row">
+          <button data-action="rewind" class="ghost">−10s</button>
+          <button data-action="reset" class="ghost">Reset</button>
+          <button data-action="advance" class="ghost">+10s</button>
+        </div>
+      </section>
+
+      <p id="message" class="message" hidden></p>
+    </main>
+
+    <footer id="site" hidden>
+      <label class="switch">
+        <span><span class="muted">Enabled on</span> <strong id="host"></strong></span>
+        <input id="site-toggle" type="checkbox" role="switch" />
+      </label>
+      <p id="global-off" class="note" hidden>
+        Video Speed is turned off everywhere. <button id="global-on" class="link">Turn on</button>
+      </p>
+    </footer>
+
+    <script src="lib.js"></script>
+    <script src="popup.js"></script>
+  </body>
+</html>
