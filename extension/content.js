@@ -61,7 +61,7 @@
     } else {
       for (const el of [...media.keys()]) if (el.tagName === 'AUDIO') untrack(el);
     }
-    if (ui) ui.host.style.setProperty('--vsc-opacity', String(settings.opacity));
+    if (ui) styleHost(ui.host);
     schedule();
   }
 
@@ -184,7 +184,7 @@
     for (const t of ['loadstart', 'loadedmetadata', 'play', 'seeked']) el.addEventListener(t, onMediaEvent, opt);
     ro.observe(el);
     enforce(el);
-    buildPill(c);
+    if (el.tagName === 'VIDEO') buildPill(c); // audio is controlled by keys only, never drawn
     if (!tick) tick = setInterval(() => document.hidden || schedule(), 1000);
     schedule();
   }
@@ -346,34 +346,45 @@
   // ---------------------------------------------------------------- overlay
 
   const CSS = `
-:host { --vsc-opacity: 0.5; }
+:host { --vsc-opacity: 0.5; --vsc-scale: 1; }
 [hidden] { display: none !important; }
 .pill {
   position: absolute; top: 0; left: 0;
-  display: flex; align-items: center; gap: 2px;
-  padding: 3px; border-radius: 9px;
-  background: rgba(17, 17, 20, 0.78);
-  -webkit-backdrop-filter: blur(8px) saturate(1.4); backdrop-filter: blur(8px) saturate(1.4);
-  box-shadow: 0 0 0 1px rgba(255,255,255,0.08), 0 4px 16px rgba(0,0,0,0.25);
-  color: #fff; font: 600 13px/1 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  font-variant-numeric: tabular-nums; letter-spacing: 0.01em;
-  opacity: var(--vsc-opacity); pointer-events: auto; user-select: none; -webkit-user-select: none;
-  transition: opacity 160ms ease-out; will-change: transform; touch-action: none;
+  opacity: var(--vsc-opacity); pointer-events: auto; touch-action: none;
+  user-select: none; -webkit-user-select: none; will-change: transform;
+  transition: opacity 180ms cubic-bezier(.2, .8, .2, 1);
 }
 .pill:hover, .pill.flash { opacity: 1; }
-.speed { padding: 4px 7px; cursor: grab; min-width: 3.4ch; text-align: center; }
-.speed::after { content: '×'; opacity: 0.6; margin-left: 1px; }
-.speed:active { cursor: grabbing; }
-.ctrls { display: none; gap: 2px; }
-.pill:hover .ctrls { display: flex; }
-button {
-  all: unset; box-sizing: border-box; width: 24px; height: 22px; border-radius: 6px;
-  display: grid; place-items: center; cursor: pointer; color: #fff; font: inherit; font-size: 14px;
+.body {
+  zoom: var(--vsc-scale);
+  display: flex; align-items: center; height: 30px; padding: 0 3px; border-radius: 999px;
+  background: linear-gradient(180deg, rgba(44, 44, 52, .74), rgba(14, 14, 18, .74));
+  -webkit-backdrop-filter: blur(14px) saturate(1.6); backdrop-filter: blur(14px) saturate(1.6);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .12), inset 0 1px 0 rgba(255, 255, 255, .1),
+    0 10px 28px -8px rgba(0, 0, 0, .5), 0 2px 6px rgba(0, 0, 0, .22);
+  color: #fff; font: 600 13px/1 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-variant-numeric: tabular-nums; letter-spacing: -0.01em;
 }
-button:hover { background: rgba(255,255,255,0.14); }
-button:active { background: rgba(255,255,255,0.22); }
-button:focus-visible { outline: 2px solid #7aa7ff; outline-offset: 1px; }
-svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.speed { padding: 0 9px; min-width: 2.2em; text-align: center; cursor: grab; }
+.speed:active { cursor: grabbing; }
+.speed::after { content: '×'; margin-left: 1px; font-weight: 500; opacity: .55; }
+.ctrls {
+  display: grid; grid-template-columns: 0fr;
+  transition: grid-template-columns 240ms cubic-bezier(.2, .8, .2, 1);
+}
+.pill:hover .ctrls, .pill:focus-within .ctrls { grid-template-columns: 1fr; }
+.ctrls > div { display: flex; align-items: center; gap: 1px; min-width: 0; overflow: hidden; }
+.sep { flex: none; width: 1px; height: 14px; margin: 0 3px 0 1px; background: rgba(255, 255, 255, .16); }
+button {
+  all: unset; box-sizing: border-box; flex: none; width: 24px; height: 24px; border-radius: 999px;
+  display: grid; place-items: center; cursor: pointer; color: rgba(255, 255, 255, .82);
+  transition: background 120ms ease-out, color 120ms ease-out, transform 120ms ease-out;
+}
+button:hover { background: rgba(255, 255, 255, .14); color: #fff; }
+button:active { transform: scale(.88); }
+button:focus-visible { outline: 2px solid #8ab4ff; outline-offset: -2px; }
+svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 `;
 
   const ICONS = {
@@ -433,7 +444,7 @@ svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width:
     ]
       .map((d) => d + ' !important')
       .join(';');
-    host.style.setProperty('--vsc-opacity', String(settings.opacity));
+    styleHost(host);
     const root = host.attachShadow({ mode: 'closed' });
     try {
       const sheet = new CSSStyleSheet();
@@ -448,6 +459,11 @@ svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width:
     ui = { host, root };
     showTop();
     return ui;
+  }
+
+  function styleHost(host) {
+    host.style.setProperty('--vsc-opacity', String(settings.opacity));
+    host.style.setProperty('--vsc-scale', String(settings.scale));
   }
 
   /** Put the overlay at the top of the top layer (above fullscreen elements). */
@@ -482,6 +498,9 @@ svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width:
 
     const ctrls = document.createElement('span');
     ctrls.className = 'ctrls';
+    const inner = document.createElement('div');
+    const sep = document.createElement('span');
+    sep.className = 'sep';
     const btn = (action, name, label) => {
       const b = document.createElement('button');
       b.type = 'button';
@@ -497,14 +516,19 @@ svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width:
       });
       return b;
     };
-    ctrls.append(
+    ctrls.append(inner);
+    inner.append(
+      sep,
       btn('rewind', 'rewind', 'Rewind'),
       btn('slower', 'slower', 'Slower'),
       btn('faster', 'faster', 'Faster'),
       btn('advance', 'advance', 'Advance'),
       btn('hide', 'hide', 'Hide controller')
     );
-    pill.append(speedEl, ctrls);
+    const body = document.createElement('div');
+    body.className = 'body';
+    body.append(speedEl, ctrls);
+    pill.append(body);
 
     // Keep our clicks away from the page's player (e.g. click-to-pause).
     for (const t of ['pointerdown', 'pointerup', 'mousedown', 'mouseup', 'click', 'dblclick', 'contextmenu']) {
@@ -538,26 +562,27 @@ svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width:
     root.append(pill);
   }
 
+  const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+
   function schedule() {
     if (!raf && running) raf = requestAnimationFrame(render);
   }
 
   function render() {
     raf = 0;
-    if (!running || !media.size) return;
-    ensureUI();
+    if (!running || !ui) return;
+    ensureUI(); // re-attach if the page removed it or fullscreen changed
     const flashing = performance.now() < flashUntil;
     const vw = innerWidth;
     const vh = innerHeight;
     for (const c of media.values()) {
       const { el, pill } = c;
       if (!pill) continue;
-      let show = el.isConnected && !c.hidden && (!hiddenAll || flashing);
+      let show = el.isConnected && !c.hidden && !hiddenAll;
       let r;
       if (show) {
         r = el.getBoundingClientRect();
-        const big = el.tagName === 'AUDIO' ? r.width >= 20 && r.height >= 10 : r.width >= 40 && r.height >= 40;
-        show = big && r.bottom > 0 && r.right > 0 && r.top < vh && r.left < vw && (el.checkVisibility?.() ?? true);
+        show = r.width >= 40 && r.height >= 40 && r.bottom > 0 && r.right > 0 && r.top < vh && r.left < vw && (el.checkVisibility?.() ?? true);
       }
       pill.hidden = !show;
       if (!show) continue;
@@ -566,7 +591,16 @@ svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width:
       pill.style.transform = `translate(${Math.round(x)}px, ${Math.round(y)}px)`;
       pill.classList.toggle('flash', flashing);
       const text = V.formatSpeed(el.playbackRate);
-      if (c.speedEl.textContent !== text) c.speedEl.textContent = text;
+      if (c.speedEl.textContent !== text) {
+        const changed = c.speedEl.textContent !== '';
+        c.speedEl.textContent = text;
+        if (changed && !reducedMotion.matches) {
+          c.speedEl.animate([{ transform: 'scale(1.18)' }, { transform: 'scale(1)' }], {
+            duration: 220,
+            easing: 'cubic-bezier(.2, .8, .2, 1)',
+          });
+        }
+      }
     }
   }
 

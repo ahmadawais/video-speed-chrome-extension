@@ -30,7 +30,7 @@
     { action: 'rewind', code: 'KeyZ', value: 10 },
     { action: 'advance', code: 'KeyX', value: 10 },
     { action: 'preferred', code: 'KeyG', value: 2 },
-    { action: 'display', code: 'KeyV' },
+    { action: 'display', code: 'KeyB' },
     { action: 'mark', code: 'KeyM' },
     { action: 'jump', code: 'KeyJ' },
   ];
@@ -46,9 +46,12 @@
     return round(Math.min(MAX_SPEED, Math.max(MIN_SPEED, n)));
   }
 
+  /** 1 -> "1", 1.5 -> "1.5", 1.25 -> "1.25" */
   function formatSpeed(n) {
-    return clampSpeed(n).toFixed(2);
+    return String(clampSpeed(n));
   }
+
+  const SCALES = [0.5, 0.75, 1, 1.25];
 
   function clone(v) {
     return JSON.parse(JSON.stringify(v));
@@ -100,6 +103,7 @@
     }
     if (isNum(raw.lastSpeed)) s.lastSpeed = clampSpeed(raw.lastSpeed);
     if (isNum(raw.opacity)) s.opacity = Math.min(1, Math.max(0.1, raw.opacity));
+    if (SCALES.includes(raw.scale)) s.scale = raw.scale;
     if (Array.isArray(raw.bindings)) {
       s.bindings = raw.bindings.slice(0, 64).map(sanitizeBinding).filter(Boolean);
     }
@@ -241,12 +245,13 @@
   const DEFAULTS = {
     version: 1,
     enabled: true,
-    rememberSpeed: false,
+    rememberSpeed: true,
     lastSpeed: 1,
     audio: true,
-    startHidden: false,
+    startHidden: true,
     blockSiteKeys: false,
     opacity: 0.5,
+    scale: 1,
     bindings: DEFAULT_BINDINGS.map(sanitizeBinding),
     // Each rule: { pattern: 'example.com' | '/regex/i', disabled: bool, speed: number|null }
     rules: [
@@ -260,6 +265,7 @@
     MIN_SPEED,
     MAX_SPEED,
     ACTIONS,
+    SCALES,
     DEFAULTS,
     DEFAULT_BINDINGS,
     clampSpeed,

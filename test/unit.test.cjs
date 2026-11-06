@@ -9,7 +9,10 @@ test('clampSpeed keeps speeds inside Chromium limits and rounds to 2 decimals', 
   assert.equal(V.clampSpeed(1.234), 1.23);
   assert.equal(V.clampSpeed(NaN), 1);
   assert.equal(V.clampSpeed('2'), 1);
-  assert.equal(V.formatSpeed(1.5), '1.50');
+  assert.equal(V.formatSpeed(1), '1');
+  assert.equal(V.formatSpeed(1.5), '1.5');
+  assert.equal(V.formatSpeed(1.25), '1.25');
+  assert.equal(V.formatSpeed(2.0000001), '2');
 });
 
 test('default shortcuts', () => {
@@ -23,9 +26,18 @@ test('default shortcuts', () => {
   assert.equal(b.advance.code, 'KeyX');
   assert.equal(b.preferred.code, 'KeyG');
   assert.equal(b.preferred.value, 2);
-  assert.equal(b.display.code, 'KeyV');
+  assert.equal(b.display.code, 'KeyB');
   assert.equal(b.mark.code, 'KeyM');
   assert.equal(b.jump.code, 'KeyJ');
+});
+
+test('defaults: remember speed on, controller hidden, normal size', () => {
+  const d = V.sanitizeSettings(null);
+  assert.equal(d.rememberSpeed, true);
+  assert.equal(d.startHidden, true);
+  assert.equal(d.scale, 1);
+  assert.equal(V.sanitizeSettings({ scale: 0.5 }).scale, 0.5);
+  assert.equal(V.sanitizeSettings({ scale: 0.3 }).scale, 1);
 });
 
 test('sanitizeSettings fills defaults and rejects junk', () => {

@@ -76,6 +76,9 @@ code {
   color: var(--muted);
   font-size: 12.5px;
 }
+select.size {
+  width: 160px;
+}
 input[type='range'] {
   width: 140px;
   accent-color: var(--accent);

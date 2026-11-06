@@ -40,6 +40,7 @@ const PAGES = {
     </script>`,
   '/frame': `<iframe id="f" src="/video" style="width:600px;height:400px;border:0"></iframe>`,
   '/empty': `<p>No media here.</p>`,
+  '/audio': `<audio id="a" src="/clip.webm" controls></audio>`,
 };
 
 let server;
@@ -106,7 +107,7 @@ async function setStorage(values) {
   await p.evaluate(async (v) => {
     await chrome.storage.local.clear();
     await chrome.storage.local.set(v);
-  }, values);
+  }, { rememberSpeed: false, ...values });
   await p.close();
 }
 
@@ -199,15 +200,18 @@ test('overlay sits on top of the page, and above fullscreen content', async () =
       const r = v.getBoundingClientRect();
       return document.elementFromPoint(r.left + 20, r.top + 18)?.tagName === t;
     }, tag, { timeout: 3000 });
+  await page.waitForTimeout(200);
+  await topIs('VIDEO'); // hidden by default
+  await page.keyboard.press('b'); // show
   await topIs('VIDEO-SPEED-OVERLAY');
 
   await page.click('#fs');
   await page.waitForFunction(() => document.fullscreenElement?.id === 'wrap');
   await topIs('VIDEO-SPEED-OVERLAY');
 
-  await page.keyboard.press('v'); // hide
+  await page.keyboard.press('b'); // hide
   await topIs('VIDEO');
-  await page.keyboard.press('v'); // show
+  await page.keyboard.press('b'); // show
   await topIs('VIDEO-SPEED-OVERLAY');
   await page.close();
 });
@@ -273,7 +277,7 @@ test('popup messaging: state and set speed', async () => {
     const bad = await chrome.tabs.sendMessage(target.id, { type: 'vsc:action', action: '__proto__' }).catch(() => 'rejected');
     return { set, site, bad };
   });
-  assert.deepEqual(res.set, { speed: 2.5, count: 1, hidden: false });
+  assert.deepEqual(res.set, { speed: 2.5, count: 1, hidden: true });
   assert.equal(res.site.host, '127.0.0.1');
   assert.equal(res.site.enabled, true);
   assert.ok(res.bad === undefined || res.bad === 'rejected');
@@ -398,6 +402,18 @@ test('nothing leaks into the page', async () => {
   assert.deepEqual(leak.globals, ['undefined', 'undefined', 'undefined']);
   assert.equal(leak.shadow, null, 'closed shadow root');
   assert.equal(leak.resource, 'blocked', 'no web-accessible resources');
+  await page.close();
+});
+
+test('audio is controlled but never gets an overlay', async () => {
+  const page = await open('/audio');
+  await page.locator('audio').evaluate((a) => a.readyState >= 1 || new Promise((r) => a.addEventListener('loadedmetadata', r, { once: true })));
+  await page.waitForTimeout(200);
+  await page.keyboard.press('d');
+  await page.keyboard.press('b');
+  await page.waitForTimeout(200);
+  assert.equal(await page.locator('audio').evaluate((a) => a.playbackRate), 1.1);
+  assert.equal(await page.locator('video-speed-overlay').count(), 0);
   await page.close();
 });
 
