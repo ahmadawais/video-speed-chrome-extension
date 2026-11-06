@@ -30,7 +30,7 @@
     { action: 'rewind', code: 'KeyZ', value: 10 },
     { action: 'advance', code: 'KeyX', value: 10 },
     { action: 'preferred', code: 'KeyG', value: 2 },
-    { action: 'display', code: 'KeyB' },
+    { action: 'display', code: 'KeyV' },
     { action: 'mark', code: 'KeyM' },
     { action: 'jump', code: 'KeyJ' },
   ];

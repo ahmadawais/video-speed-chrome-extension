@@ -26,7 +26,7 @@ test('default shortcuts', () => {
   assert.equal(b.advance.code, 'KeyX');
   assert.equal(b.preferred.code, 'KeyG');
   assert.equal(b.preferred.value, 2);
-  assert.equal(b.display.code, 'KeyB');
+  assert.equal(b.display.code, 'KeyV');
   assert.equal(b.mark.code, 'KeyM');
   assert.equal(b.jump.code, 'KeyJ');
 });

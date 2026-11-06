@@ -202,16 +202,16 @@ test('overlay sits on top of the page, and above fullscreen content', async () =
     }, tag, { timeout: 3000 });
   await page.waitForTimeout(200);
   await topIs('VIDEO'); // hidden by default
-  await page.keyboard.press('b'); // show
+  await page.keyboard.press('v'); // show
   await topIs('VIDEO-SPEED-OVERLAY');
 
   await page.click('#fs');
   await page.waitForFunction(() => document.fullscreenElement?.id === 'wrap');
   await topIs('VIDEO-SPEED-OVERLAY');
 
-  await page.keyboard.press('b'); // hide
+  await page.keyboard.press('v'); // hide
   await topIs('VIDEO');
-  await page.keyboard.press('b'); // show
+  await page.keyboard.press('v'); // show
   await topIs('VIDEO-SPEED-OVERLAY');
   await page.close();
 });
@@ -410,7 +410,7 @@ test('audio is controlled but never gets an overlay', async () => {
   await page.locator('audio').evaluate((a) => a.readyState >= 1 || new Promise((r) => a.addEventListener('loadedmetadata', r, { once: true })));
   await page.waitForTimeout(200);
   await page.keyboard.press('d');
-  await page.keyboard.press('b');
+  await page.keyboard.press('v');
   await page.waitForTimeout(200);
   assert.equal(await page.locator('audio').evaluate((a) => a.playbackRate), 1.1);
   assert.equal(await page.locator('video-speed-overlay').count(), 0);

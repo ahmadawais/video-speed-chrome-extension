@@ -33,7 +33,7 @@ A ground-up rewrite of the much-loved [Video Speed Controller](https://github.co
 - **Speed fightback:** when a player quietly resets your speed, Video Speed puts it back. When *you* pick a speed in the site's own menu, Video Speed follows your choice.
 - **Per-site rules:** set a default speed for a domain (say, 2× on lecture sites), or turn the extension off there. Matches domains plus subdomains, or `/regex/` on the full URL.
 - **Remember speed** across pages (on by default).
-- A draggable glass on-video controller: quick buttons on hover, adjustable opacity, four sizes (down to 50%). Hidden until you press <kbd>B</kbd>; audio never gets one. Speeds read cleanly: `1×`, `1.5×`, `1.25×`.
+- A draggable glass on-video controller: quick buttons on hover, adjustable opacity, four sizes (down to 50%). Hidden until you press <kbd>V</kbd>; audio never gets one. Speeds read cleanly: `1×`, `1.5×`, `1.25×`.
 - A popup with presets, ±10s and reset, plus an on/off switch for the current site.
 - Fully remappable shortcuts with modifier keys. You can add as many as you like (for example, a second preferred speed on Shift+G).
 
@@ -47,7 +47,7 @@ A ground-up rewrite of the much-loved [Video Speed Controller](https://github.co
 | <kbd>Z</kbd> | Rewind 10 seconds |
 | <kbd>X</kbd> | Advance 10 seconds |
 | <kbd>G</kbd> | Toggle preferred speed (2×) |
-| <kbd>B</kbd> | Show or hide the on-video controller (hidden by default) |
+| <kbd>V</kbd> | Show or hide the on-video controller (hidden by default) |
 | <kbd>M</kbd> | Set a marker at the current position |
 | <kbd>J</kbd> | Jump back to the marker |
 
