@@ -367,7 +367,6 @@
 }
 .speed { padding: 0 9px; min-width: 2.2em; text-align: center; cursor: grab; }
 .speed:active { cursor: grabbing; }
-.speed::after { content: '×'; margin-left: 1px; font-weight: 500; opacity: .55; }
 .ctrls {
   display: grid; grid-template-columns: 0fr;
   transition: grid-template-columns 240ms cubic-bezier(.2, .8, .2, 1);
